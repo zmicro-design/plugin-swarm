@@ -1,0 +1,3 @@
+PLUGIN_VERSION=v1.0.0
+
+PLUGIN_DESCRIPTION="Swarm Service Manager"
