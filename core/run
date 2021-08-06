@@ -1,0 +1,7 @@
+#!/bin/bash
+
+swarm_run() {
+  zmicro plugin run swarm $@
+}
+
+export -f swarm_run

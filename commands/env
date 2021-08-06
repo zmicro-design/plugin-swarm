@@ -1,0 +1,34 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  swarm config [options]"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log_error "service is required"
+    exit 1
+  fi
+
+  cd $SWARM_PLUGIN_SERVICE_PATH/$service
+
+  if [ ! -f .env ]; then
+    log_error "Please use .env instead of write all config in docker-compose.yml"
+    exit 1
+  fi
+
+  cat .env
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

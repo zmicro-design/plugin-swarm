@@ -1,0 +1,44 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  swarm update"
+  echo ""
+  echo "    -h, --help              Get help"
+  echo "    -u, --update <version>  Set new version"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log_error "service is required"
+    exit 1
+  fi
+
+  cd $SWARM_PLUGIN_SERVICE_PATH/$service
+  if [ ! -f .env ]; then
+    log_error "Please use .env instead of write all config in docker-compose.yml"
+    exit 1
+  fi
+
+  . .env
+  local old_version=$VERSION
+
+  vim .env
+
+  . .env
+  local new_version=$VERSION
+  if [ "$old_version" = "$new_version" ]; then
+    log_info "No version change for $service"
+    exit 0
+  fi
+
+  log "[service: $(color_success $service)]: version update $(color_error $old_version) => $(color_success $new_version)"
+  swarm_run restart $service
+}
+
+run() {
+  core $@
+}
+
+run $@

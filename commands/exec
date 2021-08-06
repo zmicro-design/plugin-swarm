@@ -1,0 +1,44 @@
+#!/bin/bash
+load inquirer
+
+help() {
+  echo "Usage:"
+  echo "  swarm exec <service> [options]"
+}
+
+core() {
+  local service=$1
+  local command=${@:2}
+  if [ "$service" = "" ]; then
+    log_error "service is required"
+    exit 1
+  fi
+
+  local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
+  inquirer_select "Select an service ?" available_service select_sub_service
+
+  local container_id=$(docker ps | grep ${select_sub_service} | awk '{print $1}')
+
+  if [ "$container_id" = "" ]; then
+    log_error "Cannot found service container id."
+    log_error "Maybe on other node. We cannot exec other node container currently."
+    exit 1
+  fi
+
+  if [ "$command" = "" ]; then
+    docker exec -it $container_id sh
+  else
+    docker exec -it $container_id $command
+  fi
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+
+help() {
+  echo "Usage:"
+  echo "  swarm start <service...>"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log_error "service is required"
+    exit 1
+  fi
+
+  local apps=($@)
+  for app in ${apps[@]}; do
+    cd $SWARM_PLUGIN_SERVICE_PATH/$app
+    docker stack deploy -c <(docker-compose config 2>/dev/null) $app --with-registry-auth
+  done
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

@@ -1,0 +1,55 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  swarm config [options]"
+}
+
+show() {
+  local service=$1
+  cd $SWARM_PLUGIN_SERVICE_PATH/$service
+
+  docker-compose config
+}
+
+edit() {
+  local service=$1
+  cd $SWARM_PLUGIN_SERVICE_PATH/$service
+  
+  if [ -f .env ]; then
+    vim .env
+  else
+    vim docker-compose.yml
+  fi
+}
+
+core() {
+  local service=$1
+  local option=$2
+  if [ "$service" = "" ]; then
+    log_error "service is required"
+    exit 1
+  fi
+  
+  case $option in
+    -e | --edit)
+      edit
+      exit 0
+      ;;
+    *)
+      show
+      exit 0
+      ;;
+  esac
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

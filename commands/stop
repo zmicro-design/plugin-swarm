@@ -1,0 +1,30 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  swarm stop [options]"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log_error "service is required"
+    exit 1
+  fi
+
+  local apps=($@)
+  for app in ${apps[@]}; do
+    docker stack rm $app
+  done
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

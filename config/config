@@ -1,0 +1,9 @@
+#!/bin/bash
+# Base
+export SWARM_PLUGIN_BASE_PATH=$ZMICRO_PLUGIN_PATH/swarm
+# Core
+export SWARM_PLUGIN_CORE_PATH=$SWARM_PLUGIN_BASE_PATH/core
+# Service
+export SWARM_PLUGIN_SERVICE_PATH=$HOME/swarm
+# Data
+export SWARM_PLUGIN_DATA_PATH=$ZMICRO_DATA_PATH/swarm
