@@ -11,6 +11,7 @@ core() {
     exit 0
   fi
 
+  export ZMICRO_SERVICE_PATH=$SWARM_PLUGIN_SERVICE_PATH
   zmicro_service_list $@
 }
 
