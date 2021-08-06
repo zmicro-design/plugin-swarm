@@ -33,11 +33,11 @@ core() {
   
   case $option in
     -e | --edit)
-      edit
+      edit $service
       exit 0
       ;;
     *)
-      show
+      show $service
       exit 0
       ;;
   esac
