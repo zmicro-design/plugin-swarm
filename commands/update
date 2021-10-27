@@ -11,13 +11,13 @@ help() {
 core() {
   local service=$1
   if [ "$service" = "" ]; then
-    log_error "service is required"
+    log::error "service is required"
     exit 1
   fi
 
   cd $SWARM_PLUGIN_SERVICE_PATH/$service
   if [ ! -f .env ]; then
-    log_error "Please use .env instead of write all config in docker-compose.yml"
+    log::error "Please use .env instead of write all config in docker-compose.yml"
     exit 1
   fi
 
@@ -29,11 +29,11 @@ core() {
   . .env
   local new_version=$VERSION
   if [ "$old_version" = "$new_version" ]; then
-    log_info "No version change for $service"
+    log::info "No version change for $service"
     exit 0
   fi
 
-  log "[service: $(color_success $service)]: version update $(color_error $old_version) => $(color_success $new_version)"
+  log "[service: $(color::success $service)]: version update $(color::error $old_version) => $(color::success $new_version)"
   swarm_run restart $service
 }
 

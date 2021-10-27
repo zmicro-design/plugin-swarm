@@ -10,12 +10,12 @@ help() {
 core() {
   local service=$1
   if [ "$service" = "" ]; then
-    log_error "service is required"
+    log::error "service is required"
     exit 1
   fi
 
   local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
-  inquirer_select "Select an service ?" available_service select_sub_service
+  inquirer::select "Select an service ?" available_service select_sub_service
 
   docker service logs --follow --tail 10 $select_sub_service
 }

@@ -3,10 +3,10 @@
 h_load() {
   if [ ! -d $ZMICRO_LOG_PATH ] || [ ! -w $ZMICRO_LOG_COMMON_PATH ]; then
     . $CORE_PATH/log
-    log_init
+    log::init
   fi
 
-  log_debug "[CORE] load $1"
+  log::debug "[CORE] load $1"
 
   local FN_PATH=$SWARM_PLUGIN_CORE_PATH/$1
 

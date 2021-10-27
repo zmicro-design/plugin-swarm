@@ -26,14 +26,14 @@ edit() {
 core() {
   local swarm_service_path=$1
   if [ "$swarm_service_path" = "" ]; then
-    log_error "swarm service path is required"
+    log::error "swarm service path is required"
     exit 1
   fi
   
   local original_config=$(zmicro config get SWARM_PLUGIN_SERVICE_PATH)
   echo $original_config | grep $swarm_service_path >> /dev/null 2>&1
   if [ "$?" = "0" ]; then
-    log_error "swarm service $swarm_service_path is already registered"
+    log::error "swarm service $swarm_service_path is already registered"
     exit 1
   fi
 

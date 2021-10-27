@@ -8,7 +8,7 @@ help() {
 core() {
   local service=$1
   if [ "$service" = "" ]; then
-    log_error "service is required"
+    log::error "service is required"
     exit 1
   fi
 

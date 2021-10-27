@@ -12,7 +12,7 @@ core() {
   fi
 
   export ZMICRO_SERVICES_PATH=$SWARM_PLUGIN_SERVICE_PATH
-  zmicro_service_list $@
+  service::list $@
 }
 
 run() {
