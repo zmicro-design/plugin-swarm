@@ -17,7 +17,7 @@ core() {
   local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
   inquirer::select "Select an service ?" available_service select_sub_service
 
-  local container_id=$(docker ps | grep ${select_sub_service} | awk '{print $1}' | head -n 1)
+  local container_id=$(docker ps | grep "${select_sub_service}\." | awk '{print $1}' | head -n 1)
   # echo "container: ${select_sub_service} $container_id"
 
   if [ "$container_id" = "" ]; then
