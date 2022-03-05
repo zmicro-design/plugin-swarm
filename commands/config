@@ -7,7 +7,7 @@ help() {
 
 show() {
   local service=$1
-  swarm::config::show $service
+  swarm::config $service
 }
 
 edit() {
