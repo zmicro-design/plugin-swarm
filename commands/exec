@@ -1,5 +1,4 @@
 #!/bin/bash
-load inquirer
 
 help() {
   echo "Usage:"
@@ -9,28 +8,8 @@ help() {
 core() {
   local service=$1
   local command=${@:2}
-  if [ "$service" = "" ]; then
-    log::error "service is required"
-    exit 1
-  fi
 
-  local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
-  inquirer::select "Select an service ?" available_service select_sub_service
-
-  local container_id=$(docker ps | grep "${select_sub_service}\." | awk '{print $1}' | head -n 1)
-  # echo "container: ${select_sub_service} $container_id"
-
-  if [ "$container_id" = "" ]; then
-    log::error "Cannot found service container id."
-    log::error "Maybe on other node. We cannot exec other node container currently."
-    exit 1
-  fi
-
-  if [ "$command" = "" ]; then
-    docker exec -it $container_id sh
-  else
-    docker exec -it $container_id $command
-  fi
+  swarm::exec $service $command
 }
 
 run() {

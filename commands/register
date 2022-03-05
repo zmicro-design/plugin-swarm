@@ -5,44 +5,14 @@ help() {
   echo "  swarm register <SWARM_SERVICE_PATH>"
 }
 
-show() {
-  local service=$1
-  cd $SWARM_PLUGIN_SERVICE_PATH/$service
-
-  docker-compose config
-}
-
-edit() {
-  local service=$1
-  cd $SWARM_PLUGIN_SERVICE_PATH/$service
-  
-  if [ -f .env ]; then
-    vim .env
-  else
-    vim docker-compose.yml
-  fi
-}
-
 core() {
-  local swarm_service_path=$1
-  if [ "$swarm_service_path" = "" ]; then
+  local service_path=$1
+  if [ "$service_path" = "" ]; then
     log::error "swarm service path is required"
     exit 1
   fi
-  
-  local original_config=$(zmicro config get SWARM_PLUGIN_SERVICE_PATH)
-  echo $original_config | grep $swarm_service_path >> /dev/null 2>&1
-  if [ "$?" = "0" ]; then
-    log::error "swarm service $swarm_service_path is already registered"
-    exit 1
-  fi
 
-  local new_config="$swarm_service_path"
-  if [ -n "$original_config" ]; then
-    new_config="$new_config:$original_config"
-  fi
-  
-  zmicro config set SWARM_PLUGIN_SERVICE_PATH $new_config
+  swarm::register $service_path
 }
 
 run() {

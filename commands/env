@@ -12,14 +12,16 @@ core() {
     exit 1
   fi
 
-  cd $SWARM_PLUGIN_SERVICE_PATH/$service
+  # cd $PLUGIN_SWARM_SERVICE/$service
 
-  if [ ! -f .env ]; then
-    log::error "Please use .env instead of write all config in docker-compose.yml"
-    exit 1
-  fi
+  # if [ ! -f .env ]; then
+  #   log::error "Please use .env instead of write all config in docker-compose.yml"
+  #   exit 1
+  # fi
 
-  cat .env
+  # cat .env
+
+  swarm::env $service
 }
 
 run() {

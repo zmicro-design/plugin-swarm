@@ -8,7 +8,7 @@ h_load() {
 
   log::debug "[CORE] load $1"
 
-  local FN_PATH=$SWARM_PLUGIN_CORE_PATH/$1
+  local FN_PATH=$PLUGIN_SWARM_CORE/$1
 
   if [ -f $FN_PATH ]; then
     . $FN_PATH
@@ -17,4 +17,4 @@ h_load() {
   fi
 }
 
-h_load run
+# h_load run

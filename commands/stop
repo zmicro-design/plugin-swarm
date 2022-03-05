@@ -12,10 +12,7 @@ core() {
     exit 1
   fi
 
-  local apps=($@)
-  for app in ${apps[@]}; do
-    docker stack rm $app
-  done
+  swarm::stop $@
 }
 
 run() {

@@ -14,16 +14,7 @@ core() {
     exit 1
   fi
 
-  local apps=($@)
-  for app in ${apps[@]}; do
-    if [ ! -d "$SWARM_PLUGIN_SERVICE_PATH/$app" ]; then
-      log::error "service($service) not found"
-      exit 1
-    fi
-
-    cd $SWARM_PLUGIN_SERVICE_PATH/$app
-    docker stack deploy -c <(docker-compose config 2>/dev/null) $app --with-registry-auth
-  done
+  swarm::start $@
 }
 
 run() {

@@ -14,8 +14,7 @@ core() {
     exit 1
   fi
 
-  swarm_run stop $service
-  swarm_run start $service
+  swarm::restart $@
 }
 
 run() {

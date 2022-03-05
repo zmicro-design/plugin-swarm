@@ -1,0 +1,362 @@
+#!/bin/bash
+
+swarm::get_path() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[swarm::get_path] name is required"
+    exit 1
+  fi
+
+  echo $PLUGIN_SWARM_SERVICE/$name
+}
+
+swarm::get_env_path() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[swarm::get_path] name is required"
+    exit 1
+  fi
+
+  echo $PLUGIN_SWARM_SERVICE/$name/.env
+}
+
+swarm::get_mod_path() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[$(timestamp)][swarm::get_mod_path] name is required"
+    exit 1
+  fi
+
+  local swarm_path=$(swarm::get_path $name)
+  echo $swarm_path/mod
+}
+
+
+swarm::get_data_path() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[swarm::get_data_path] name is required"
+    exit 1
+  fi
+
+  local path="$PLUGIN_SWARM_DATA/$name"
+  if [ ! -d "$path" ]; then
+    if [ ! -w "PLUGIN_SWARM_DATA" ]; then
+      sudo mkdir -p $path
+      sudo chown $USER $path
+    else
+      mkdir -p $path
+    fi 
+  fi
+
+  echo $path
+}
+
+swarm::get_logs_path() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[swarm::get_logs_path] name is required"
+    exit 1
+  fi
+
+  local path="$PLUGIN_SWARM_LOGS/$name"
+  if [ ! -d "$path" ]; then
+    if [ ! -w "$PLUGIN_SWARM_LOGS" ]; then
+      sudo mkdir -p $path
+      sudo chown $USER $path
+    else
+      mkdir -p $path
+    fi 
+  fi
+
+  echo $path
+}
+
+swarm::get_configs_path() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[swarm::get_configs_path] name is required"
+    exit 1
+  fi
+
+  local path="$PLUGIN_SWARM_CONFIGS/$name"
+  if [ ! -d "$path" ]; then
+    if [ ! -w "$PLUGIN_SWARM_CONFIGS" ]; then
+      sudo mkdir -p $path
+      sudo chown $USER $path
+    else
+      mkdir -p $path
+    fi 
+  fi
+
+  echo $path
+}
+
+swarm::start() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::start] service is required"
+    exit 1
+  fi
+
+  local apps=($@)
+  for app in ${apps[@]}; do
+    export SWARM_DIR=$(swarm::get_path $app)
+    if [ ! -d "$SWARM_DIR" ]; then
+      log::error "service($app) not found"
+      exit 1
+    fi
+
+    # global env
+    export SWARM_DATA=$(swarm::get_data_path $app)
+    export SWARM_LOGS=$(swarm::get_logs_path $app)
+    export SWARM_CONFIGS=$(swarm::get_configs_path $app)
+    export SWARM_CONFIG=$SWARM_CONFIGS/config
+
+    # load config
+    if [ -f "$SWARM_CONFIG" ]; then
+      # . $SWARM_CONFIG
+      config::load_file $SWARM_CONFIG
+    fi
+
+    cd $SWARM_DIR
+    docker stack deploy -c <(docker-compose config 2>/dev/null) $app --with-registry-auth
+  done
+}
+
+swarm::stop() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::stop] service is required"
+    exit 1
+  fi
+
+  local apps=($@)
+  for app in ${apps[@]}; do
+    docker stack rm $app
+  done
+}
+
+swarm::restart() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::restart] service is required"
+    exit 1
+  fi
+
+  local apps=($@)
+  for app in ${apps[@]}; do
+    swarm::stop $app
+    swarm::start $app
+  done
+}
+
+swarm::status() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::status] service is required"
+    exit 1
+  fi
+
+  docker stack services $@
+}
+
+swarm::config() {
+  local name=$1
+  if [ "$name" = "" ]; then
+    log::error "[swarm::config] name is required"
+    exit 1
+  fi
+
+  export SWARM_DIR=$(swarm::get_path $name)
+  if [ ! -d "$SWARM_DIR" ]; then
+    log::error "[swarm::config] service($name) not found"
+    exit 1
+  fi
+
+  # global env
+  export SWARM_DATA=$(swarm::get_data_path $name)
+  export SWARM_LOGS=$(swarm::get_logs_path $name)
+  export SWARM_CONFIGS=$(swarm::get_configs_path $name)
+  export SWARM_CONFIG=$SWARM_CONFIGS/config
+
+  cd $path
+  docker-compose config
+}
+
+swarm::exec() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::exec] service is required"
+    exit 1
+  fi
+
+  local path=$(swarm::get_path $service)
+  if [ ! -d "$path" ]; then
+    log::error "[swarm::exec] service($service) not found"
+    exit 1
+  fi
+
+  # require dependnecies
+  load inquirer
+
+  # real 
+  local service=$1
+  local command=${@:2}
+  if [ "$service" = "" ]; then
+    log::error "service is required"
+    exit 1
+  fi
+
+  local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
+  inquirer::select "Select an service ?" available_service select_sub_service
+
+  local container_id=$(docker ps | grep "${select_sub_service}\." | awk '{print $1}' | head -n 1)
+  # echo "container: ${select_sub_service} $container_id"
+
+  if [ "$container_id" = "" ]; then
+    log::error "Cannot found service container id."
+    log::error "Maybe on other node. We cannot exec other node container currently."
+    exit 1
+  fi
+
+  if [ "$command" = "" ]; then
+    docker exec -it $container_id sh
+  else
+    docker exec -it $container_id $command
+  fi
+}
+
+swarm::logs() {
+   local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::logs] service is required"
+    exit 1
+  fi
+
+  local path=$(swarm::get_path $service)
+  if [ ! -d "$path" ]; then
+    log::error "[swarm::logs] service($service) not found"
+    exit 1
+  fi
+
+  # require dependnecies
+  load inquirer
+
+  # real
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::logs] service is required"
+    exit 1
+  fi
+
+  local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
+  inquirer::select "Select an service ?" available_service select_sub_service
+
+  docker service logs --follow --tail 10 $select_sub_service
+}
+
+swarm::env() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::env] service is required"
+    exit 1
+  fi
+
+  local path=$(swarm::get_env_path $service)
+  if [ ! -f "$path" ]; then
+    log::error "[swarm::config] service($service) env not found"
+    exit 1
+  fi
+
+  cat $path
+}
+
+swarm::list() {
+  export ZMICRO_SERVICES_PATH=$PLUGIN_SWARM_SERVICE
+  service::list $@
+
+  echo "(Tips: if no services are listed, you can register a service with 'zmicro swarm register <SWARM_SERVICE_PATH>')"
+}
+
+swarm::register() {
+  local swarm_service_path=$1
+  if [ "$swarm_service_path" = "" ]; then
+    log::error "swarm service path is required"
+    exit 1
+  fi
+  
+  local original_config=$(zmicro config get PLUGIN_SWARM_SERVICE)
+  echo $original_config | grep $swarm_service_path >> /dev/null 2>&1
+  if [ "$?" = "0" ]; then
+    log::error "swarm service $swarm_service_path is already registered"
+    exit 1
+  fi
+
+  local new_config="$swarm_service_path"
+  if [ -n "$original_config" ]; then
+    new_config="$new_config:$original_config"
+  fi
+  
+  zmicro config set PLUGIN_SWARM_SERVICE $new_config
+}
+
+swarm::version() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[$(timestamp)][swarm::version] name is required"
+    exit 1
+  fi
+
+  # @TODO
+  if [ ! -f "$(swarm::get_mod_path $name)" ]; then
+    log::error "[$(timestamp)][swarm::version] cannot found mod for service($name)"
+    exit 1
+  fi
+
+  service::load_mod $name
+
+  echo $VERSION
+}
+
+swarm::load_mod() {
+  local name=$1
+  if [ -z "$name" ]; then
+    log::error "[$(timestamp)][swarm::load_mod] name is required"
+    exit 1
+  fi
+
+  local swarm_mod_path=$(swarm::get_mod_path $name)
+  if [ ! -f $swarm_mod_path ]; then
+    log::error "[$(timestamp)][swarm::load_mod] name is required"
+    exit 1
+  fi
+
+  config::load_file $swarm_mod_path
+}
+
+export -f swarm::get_path
+export -f swarm::get_mod_path
+export -f swarm::get_env_path
+
+export -f swarm::get_configs_path
+export -f swarm::get_logs_path
+export -f swarm::get_data_path
+
+export -f swarm::start
+export -f swarm::stop
+export -f swarm::restart
+
+export -f swarm::status
+export -f swarm::config
+export -f swarm::exec
+export -f swarm::logs
+
+export -f swarm::env
+
+export -f swarm::list
+export -f swarm::register
+
+export -f swarm::load_mod
+
+export -f swarm::version

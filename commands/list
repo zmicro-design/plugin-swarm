@@ -11,8 +11,7 @@ core() {
     exit 0
   fi
 
-  export ZMICRO_SERVICES_PATH=$SWARM_PLUGIN_SERVICE_PATH
-  service::list $@
+  swarm::list
 }
 
 run() {

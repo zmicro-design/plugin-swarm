@@ -1,7 +1,5 @@
 #!/bin/bash
 
-load inquirer
-
 help() {
   echo "Usage:"
   echo "  swarm logs <service> [options]"
@@ -13,11 +11,8 @@ core() {
     log::error "service is required"
     exit 1
   fi
-
-  local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
-  inquirer::select "Select an service ?" available_service select_sub_service
-
-  docker service logs --follow --tail 10 $select_sub_service
+  
+  swarm::logs $service
 }
 
 run() {
