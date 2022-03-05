@@ -180,7 +180,7 @@ swarm::config() {
   export SWARM_CONFIGS=$(swarm::get_configs_path $name)
   export SWARM_CONFIG=$SWARM_CONFIGS/config
 
-  cd $path
+  cd $SWARM_DIR
   docker-compose config
 }
 
