@@ -120,7 +120,7 @@ swarm::start() {
     fi
 
     cd $SWARM_DIR
-    docker stack deploy -c <(docker-compose config 2>/dev/null) $app --with-registry-auth
+    docker stack deploy -c <($DOCKER_COMPOSE config 2>/dev/null) $app --with-registry-auth
   done
 }
 
@@ -181,7 +181,7 @@ swarm::config() {
   export SWARM_CONFIG=$SWARM_CONFIGS/config
 
   cd $SWARM_DIR
-  docker-compose config
+  $DOCKER_COMPOSE config
 }
 
 swarm::exec() {
