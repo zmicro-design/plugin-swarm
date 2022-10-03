@@ -1,4 +1,5 @@
 #!/bin/bash
+export PLUGIN_SWARM_NAME=swarm
 # Base
 export PLUGIN_SWARM_BASE=$ZMICRO_PLUGINS_PATH/swarm
 # Core
