@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+help() {
+  echo "Usage:"
+  echo "  swarm why <service...>"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "service is required"
+    exit 1
+  fi
+
+  swarm::why $@
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

@@ -31,7 +31,6 @@ swarm::get_mod_path() {
   echo $swarm_path/mod
 }
 
-
 swarm::get_data_path() {
   local name=$1
   if [ -z "$name" ]; then
@@ -46,7 +45,7 @@ swarm::get_data_path() {
       sudo chown $USER $path
     else
       mkdir -p $path
-    fi 
+    fi
   fi
 
   echo $path
@@ -66,7 +65,7 @@ swarm::get_logs_path() {
       sudo chown $USER $path
     else
       mkdir -p $path
-    fi 
+    fi
   fi
 
   echo $path
@@ -86,7 +85,7 @@ swarm::get_configs_path() {
       sudo chown $USER $path
     else
       mkdir -p $path
-    fi 
+    fi
   fi
 
   echo $path
@@ -200,7 +199,7 @@ swarm::exec() {
   # require dependnecies
   load inquirer
 
-  # real 
+  # real
   local service=$1
   local command=${@:2}
   if [ "$service" = "" ]; then
@@ -228,7 +227,7 @@ swarm::exec() {
 }
 
 swarm::logs() {
-   local service=$1
+  local service=$1
   if [ "$service" = "" ]; then
     log::error "[swarm::logs] service is required"
     exit 1
@@ -285,9 +284,9 @@ swarm::register() {
     log::error "swarm service path is required"
     exit 1
   fi
-  
+
   local original_config=$(zmicro config get PLUGIN_SWARM_SERVICE)
-  echo $original_config | grep $swarm_service_path >> /dev/null 2>&1
+  echo $original_config | grep $swarm_service_path >>/dev/null 2>&1
   if [ "$?" = "0" ]; then
     log::error "swarm service $swarm_service_path is already registered"
     exit 1
@@ -297,7 +296,7 @@ swarm::register() {
   if [ -n "$original_config" ]; then
     new_config="$new_config:$original_config"
   fi
-  
+
   zmicro config set PLUGIN_SWARM_SERVICE $new_config
 }
 

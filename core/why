@@ -1,0 +1,32 @@
+#!/bin/bash
+
+swarm::why() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::why] service is required"
+    exit 1
+  fi
+
+  local path=$(swarm::get_path $service)
+  if [ ! -d "$path" ]; then
+    log::error "[swarm::why] service($service) not found"
+    exit 1
+  fi
+
+  # require dependnecies
+  load inquirer
+
+  # real
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::why] service is required"
+    exit 1
+  fi
+
+  local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
+  inquirer::select "Select an service ?" available_service select_sub_service
+
+  docker service ps $select_sub_service --no-trunc
+}
+
+export -f swarm::why
