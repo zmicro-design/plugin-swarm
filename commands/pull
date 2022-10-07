@@ -1,0 +1,29 @@
+#!/bin/bash
+
+help() {
+  echo "Pull service images"
+  echo ""
+  echo "Usage:"
+  echo "  swarm pull <service> [options]"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "service is required"
+    exit 1
+  fi
+
+  swarm::pull $service
+}
+
+run() {
+  if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+    help
+    exit 0
+  fi
+
+  core $@
+}
+
+run $@

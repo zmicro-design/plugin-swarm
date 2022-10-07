@@ -1,0 +1,26 @@
+#!/bin/bash
+
+swarm::pull() {
+  local name=$1
+  if [ "$name" = "" ]; then
+    log::error "[swarm::pull] name is required"
+    exit 1
+  fi
+
+  export SWARM_DIR=$(swarm::get_path $name)
+  if [ ! -d "$SWARM_DIR" ]; then
+    log::error "[swarm::pull] service($name) not found"
+    exit 1
+  fi
+
+  # global env
+  export SWARM_DATA=$(swarm::get_data_path $name)
+  export SWARM_LOGS=$(swarm::get_logs_path $name)
+  export SWARM_CONFIGS=$(swarm::get_configs_path $name)
+  export SWARM_CONFIG=$SWARM_CONFIGS/config
+
+  cd $SWARM_DIR
+  $DOCKER_COMPOSE pull
+}
+
+export -f swarm::pull
