@@ -29,6 +29,9 @@ swarm::ps() {
   fi
 
   if [ "$detail" = "true" ]; then
+    # require dependnecies
+    load inquirer
+
     local available_service=($(docker stack services ${name} | grep ${name} | awk '{print $2}'))
     inquirer::select "Select an service ?" available_service select_sub_service
 
