@@ -12,7 +12,7 @@ swarm::ps() {
       ;;
     *)
       if [ -z "$name" ]; then
-        name=$value
+        name=$key
         shift
         continue
       fi
