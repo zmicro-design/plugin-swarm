@@ -3,16 +3,22 @@
 help() {
   echo "Usage:"
   echo "  swarm ps <service> [options]"
+  echo ""
+  echo "Options:"
+  echo "  -d, --detail  Show the detail info"
+  echo "  --no-trunc    Same as --detail"
+  echo " -h, --help     Show this help"
 }
 
 core() {
   local service=$1
+  local args="${@:2}"
   if [ "$service" = "" ]; then
     log::error "service is required"
     exit 1
   fi
 
-  swarm::ps $service
+  swarm::ps $service $args
 }
 
 run() {

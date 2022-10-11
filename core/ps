@@ -1,10 +1,36 @@
 #!/bin/bash
 
 swarm::ps() {
-  local name=$1
+  local name=""
+  while [[ $# -gt 0 ]]; do
+    local key=$1
+    local value=$2
+    case $key in
+    --no-trunc | -d | --detail)
+      os::set_var detail true
+      shift
+      ;;
+    *)
+      if [ -z "$name" ]; then
+        name=$value
+        shift
+        continue
+      fi
+
+      log::error "[swarm::ps] ERROR: unknown parameter \"$key\""
+      return 1
+      ;;
+    esac
+  done
+
   if [ -z "$name" ]; then
     log::error "[swarm::ps] name is required"
     return 1
+  fi
+
+  if [ "$detail" = "true" ]; then
+    docker service ps $name --no-trunc
+    return
   fi
 
   docker stack services $name
