@@ -29,7 +29,10 @@ swarm::ps() {
   fi
 
   if [ "$detail" = "true" ]; then
-    docker service ps $name --no-trunc
+    local available_service=($(docker stack services ${name} | grep ${name} | awk '{print $2}'))
+    inquirer::select "Select an service ?" available_service select_sub_service
+
+    docker service ps $select_sub_service --no-trunc
     return
   fi
 
