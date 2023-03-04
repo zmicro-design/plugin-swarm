@@ -252,7 +252,7 @@ swarm::logs() {
   local available_service=($(docker stack services ${service} | grep ${service} | awk '{print $2}'))
   inquirer::select "Select an service ?" available_service select_sub_service
 
-  docker service logs --follow --tail 10 $select_sub_service
+  docker service logs --follow --tail 100 $select_sub_service
 }
 
 swarm::env() {
