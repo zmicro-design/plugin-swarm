@@ -14,5 +14,7 @@ export PLUGIN_SWARM_LOGS=$ZMICRO_PLUGINS_LOGS_PATH/swarm
 # Data
 export PLUGIN_SWARM_DATA=$ZMICRO_PLUGINS_DATA_PATH/swarm
 
+export DOCKER_COMPOSE_V1="/usr/local/bin/docker-compose-v1"
+
 # @TODO
-export DOCKER_COMPOSE=${DOCKER_COMPOSE:-$(which docker-compose)}
+export DOCKER_COMPOSE=${DOCKER_COMPOSE:-$DOCKER_COMPOSE_V1}
