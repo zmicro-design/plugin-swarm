@@ -6,7 +6,7 @@ config::load_user_config
 . $PLUGIN_SWARM_CORE/load
 
 core() {
-  if [ ! -f "$DOCKER_COMPOSE" ]; then
+  if [ "$(os::has_command $DOCKER_COMPOSE)" != "true" ]; then
     if [ "$DOCKER_COMPOSE" = "$DOCKER_COMPOSE_V1" ]; then
       export PACKAGE_DOCKER_COMPOSE_BIN_NAME=$DOCKER_COMPOSE
       zmicro package install docker-compose@v1
