@@ -1,0 +1,24 @@
+#!/bin/bash
+
+help() {
+  echo "Usage:"
+  echo "  swarm upgrade [options]"
+  echo ""
+  echo "    -u, --update    Restart with update"
+}
+
+core() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "service is required"
+    exit 1
+  fi
+
+  swarm::upgrade $@
+}
+
+run() {
+  core $@
+}
+
+run $@

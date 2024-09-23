@@ -150,6 +150,21 @@ swarm::restart() {
   done
 }
 
+swarm::upgrade() {
+  local service=$1
+  if [ "$service" = "" ]; then
+    log::error "[swarm::upgrade] service is required"
+    exit 1
+  fi
+
+  swarm::pull $service
+
+  local apps=($@)
+  for app in ${apps[@]}; do
+    swarm::start $app
+  done
+}
+
 swarm::status() {
   local service=$1
   if [ "$service" = "" ]; then
@@ -345,6 +360,8 @@ export -f swarm::get_data_path
 export -f swarm::start
 export -f swarm::stop
 export -f swarm::restart
+
+export -f swarm::upgrade
 
 export -f swarm::status
 export -f swarm::config
